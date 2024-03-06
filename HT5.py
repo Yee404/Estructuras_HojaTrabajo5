@@ -1,5 +1,6 @@
 import simpy
 import random
+import matplotlib as plt
 
 Semilla = 0
 Ram_Inicial = 100
@@ -9,13 +10,13 @@ Tiempos = []
 
 random.seed(Semilla)
 
-# entorno de simulación
+# Entorno de simulación
 env = simpy.Environment()
 
-# simular la memoria RAM
+# Simular memoria RAM
 RAM = simpy.Container(env, init=Ram_Inicial, capacity=Ram_Inicial)
 
-# Simular el CPU/ procesador
+# Simular CPU/ procesador
 CPU = simpy.Resource(env, capacity=1)
 
 def Proceso(env, nombre, RAM, CPU):
@@ -82,3 +83,42 @@ print("\n")
 print(f"DATOS ESTADÍSTICOS DEL PROCESO:")
 print(f"Promedio de tiempo de ejecución: {promedio}")
 print(f"Desviación estándar: {desviacion}")
+print("\n")
+# Nota personal. Lo siguiente es info del error, problemas con las gráficas
+
+
+
+## GRAFICAS
+def Graficas(num_procesos):
+    global Tiempos
+    env = simpy.Environment()
+    RAM = simpy.Container(env, init=Ram_Inicial, capacity=Ram_Inicial)
+    CPU = simpy.Resource(env, capacity=1)
+
+    Tiempos = []  # Reiniciar la lista de tiempos
+    env.process(llegada(env, RAM, CPU, num_procesos))
+    env.run(until=50)
+
+    # Calcular promedio y desviación estándar de tiempos de ejecución
+    promedio = sum(Tiempos) / len(Tiempos)
+    desviacion = (sum((t - promedio) ** 2 for t in Tiempos) / len(Tiempos)) ** 0.5
+
+    # Imprimir resultados
+    print("\n")
+    print(f"DATOS ESTADÍSTICOS DEL PROCESO ({num_procesos} procesos):")
+    print(f"Promedio de tiempo de ejecución: {promedio}")
+    print(f"Desviación estándar: {desviacion}")
+
+    # Generar gráfica
+    plt.plot(range(1, num_procesos + 1), Tiempos, marker='o')
+    plt.title(f"Tiempo de ejecución para {num_procesos} procesos")
+    plt.xlabel("Número de procesos")
+    plt.ylabel("Tiempo de ejecución")
+    plt.show()
+
+# Llamar a la función con diferentes cantidades de procesos
+Graficas(25)
+Graficas(50)
+Graficas(100)
+Graficas(150)
+Graficas(200)
